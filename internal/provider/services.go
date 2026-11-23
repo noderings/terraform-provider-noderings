@@ -6,17 +6,20 @@ import (
 
 	"github.com/noderings/terraform-provider-noderings/internal/service/catalog"
 	"github.com/noderings/terraform-provider-noderings/internal/service/dns"
+	"github.com/noderings/terraform-provider-noderings/internal/service/firewall"
 	"github.com/noderings/terraform-provider-noderings/internal/service/iam"
 )
 
 // Each product package lists its resources and data sources here.
 var serviceResources = [][]func() resource.Resource{
 	dns.Resources(),
+	firewall.Resources(),
 	iam.Resources(),
 }
 
 var serviceDataSources = [][]func() datasource.DataSource{
 	catalog.DataSources(),
 	dns.DataSources(),
+	firewall.DataSources(),
 	iam.DataSources(),
 }
