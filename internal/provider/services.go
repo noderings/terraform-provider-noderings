@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 
+	"github.com/noderings/terraform-provider-noderings/internal/service/billing"
 	"github.com/noderings/terraform-provider-noderings/internal/service/catalog"
 	"github.com/noderings/terraform-provider-noderings/internal/service/dns"
 	"github.com/noderings/terraform-provider-noderings/internal/service/firewall"
@@ -18,6 +19,7 @@ var serviceResources = [][]func() resource.Resource{
 }
 
 var serviceDataSources = [][]func() datasource.DataSource{
+	billing.DataSources(),
 	catalog.DataSources(),
 	dns.DataSources(),
 	firewall.DataSources(),
