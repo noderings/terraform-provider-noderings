@@ -19,7 +19,7 @@ import (
 
 // DataSources lists this package's data sources.
 func DataSources() []func() datasource.DataSource {
-	return []func() datasource.DataSource{NewDistrosDataSource, NewInstantAppDataSource, NewMarketplaceRegionsDataSource}
+	return []func() datasource.DataSource{NewDistrosDataSource, NewInstantAppDataSource, NewMarketplaceRegionsDataSource, NewInstantAppsDataSource}
 }
 
 // --- noderings_distros ---
