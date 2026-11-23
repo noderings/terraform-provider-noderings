@@ -86,10 +86,6 @@ type EnvironmentVariable struct {
 	Timestamps Timestamps `json:"timestamps"`
 }
 
-func notFoundErr(msg string) error {
-	return &Error{HTTPStatus: http.StatusNotFound, Code: CodeNotFound, Message: msg}
-}
-
 // --- Permissions ---
 
 // ListPermissions returns the permissions visible to the organization.

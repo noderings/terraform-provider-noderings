@@ -86,10 +86,6 @@ const (
 	FirewallRuleSetsUnattached = "FIREWALL_RULESET_ATTACHMENT_FILTER_UNATTACHED"
 )
 
-func notFoundErr(msg string) error {
-	return &Error{HTTPStatus: http.StatusNotFound, Code: CodeNotFound, Message: msg}
-}
-
 // --- Address groups ---
 
 // CreateFirewallAddressGroup creates an address group.

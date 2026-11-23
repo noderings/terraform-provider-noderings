@@ -103,6 +103,11 @@ func hasCode(err error, code int) bool {
 	return errors.As(err, &e) && e.Code == code
 }
 
+// notFoundErr builds a NotFound error for responses that omit the expected object.
+func notFoundErr(msg string) error {
+	return &Error{HTTPStatus: http.StatusNotFound, Code: CodeNotFound, Message: msg}
+}
+
 // IsNotFound reports whether err is a NotFound API error.
 func IsNotFound(err error) bool { return hasCode(err, CodeNotFound) }
 
