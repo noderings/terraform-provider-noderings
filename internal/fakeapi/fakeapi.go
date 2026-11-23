@@ -31,6 +31,33 @@ type Server struct {
 	zones   map[string]*zone
 	Calls   []string // "METHOD path" of every request, for assertions
 	failing map[string]int
+	ext     map[string]any
+}
+
+// handler serves one product's routes. It returns false when the request is
+// not one of its routes. Product files register handlers in init().
+type handler func(s *Server, w http.ResponseWriter, r *http.Request, p []string) bool
+
+var handlers []handler
+
+func register(h handler) { handlers = append(handlers, h) }
+
+// state returns per-server state for a product, creating it on first use.
+// Callers hold s.mu (every handler does).
+func state[T any](s *Server, key string, init func() *T) *T {
+	if v, ok := s.ext[key]; ok {
+		return v.(*T)
+	}
+	v := init()
+	s.ext[key] = v
+	return v
+}
+
+// With runs f while holding the server lock, for tests that change state directly.
+func (s *Server) With(f func()) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	f()
 }
 
 type zone struct {
@@ -49,7 +76,7 @@ type record struct {
 
 // New starts a fake API. Close it with Close.
 func New() *Server {
-	s := &Server{keys: map[string]map[string]any{}, zones: map[string]*zone{}, failing: map[string]int{}}
+	s := &Server{keys: map[string]map[string]any{}, zones: map[string]*zone{}, failing: map[string]int{}, ext: map[string]any{}}
 	s.Server = httptest.NewServer(http.HandlerFunc(s.serve))
 	return s
 }
@@ -158,8 +185,22 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 	case len(p) >= 3 && p[1] == "dns" && p[2] == "zones":
 		s.dns(w, r, p)
 	default:
+		for _, h := range handlers {
+			if h(s, w, r, p) {
+				return
+			}
+		}
 		apiError(w, 404, 5, "Not Found")
 	}
+}
+
+// decode reads a JSON request body into v and reports a 400 on failure.
+func decode(w http.ResponseWriter, r *http.Request, v any) bool {
+	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
+		apiError(w, 400, 3, "invalid request body: "+err.Error())
+		return false
+	}
+	return true
 }
 
 func org() map[string]any {

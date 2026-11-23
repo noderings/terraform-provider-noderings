@@ -16,9 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/noderings/terraform-provider-noderings/internal/client"
-	"github.com/noderings/terraform-provider-noderings/internal/service/catalog"
-	"github.com/noderings/terraform-provider-noderings/internal/service/dns"
-	"github.com/noderings/terraform-provider-noderings/internal/service/iam"
 )
 
 // Environment variables read when the matching argument is not set.
@@ -192,15 +189,16 @@ func valueOr(v types.String, fallback string) string {
 
 func (p *nodeRingsProvider) Resources(_ context.Context) []func() resource.Resource {
 	var out []func() resource.Resource
-	out = append(out, dns.Resources()...)
-	out = append(out, iam.Resources()...)
+	for _, rs := range serviceResources {
+		out = append(out, rs...)
+	}
 	return out
 }
 
 func (p *nodeRingsProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	var out []func() datasource.DataSource
-	out = append(out, catalog.DataSources()...)
-	out = append(out, dns.DataSources()...)
-	out = append(out, iam.DataSources()...)
+	for _, ds := range serviceDataSources {
+		out = append(out, ds...)
+	}
 	return out
 }
