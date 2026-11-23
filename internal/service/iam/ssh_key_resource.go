@@ -21,12 +21,14 @@ import (
 
 // Resources lists this package's resources.
 func Resources() []func() resource.Resource {
-	return []func() resource.Resource{NewSSHKeyResource}
+	return []func() resource.Resource{NewSSHKeyResource,
+		NewRoleResource, NewGroupResource, NewGroupMembershipResource, NewRoleAssignmentResource, NewSecretResource, NewEnvironmentVariableResource}
 }
 
 // DataSources lists this package's data sources.
 func DataSources() []func() datasource.DataSource {
-	return []func() datasource.DataSource{NewSSHKeyDataSource, NewOrganizationDataSource}
+	return []func() datasource.DataSource{NewSSHKeyDataSource, NewOrganizationDataSource,
+		NewPermissionDataSource, NewPermissionsDataSource, NewRoleDataSource, NewRolesDataSource, NewUsersDataSource}
 }
 
 var (
