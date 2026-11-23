@@ -21,7 +21,7 @@ const (
 	// GamePlanCode is a usage-billed game-server plan in Frankfurt.
 	GamePlanCode = "SC-GS-4C-8G-50"
 	GamePlanID   = "7c3a0000-0000-4000-8000-000000000010"
-	// GameTemplateID is the only orderable game on GamePlanID.
+	// GameTemplateID is an orderable game on GamePlanID (gameserver.go adds a second).
 	GameTemplateID   = "8d4b0000-0000-4000-8000-000000000001"
 	GameTemplateName = "Minecraft · Paper"
 
