@@ -188,7 +188,7 @@ func (c *Client) once(ctx context.Context, r request, out any) error {
 
 func vmPath(id string) string { return "/v1/virtual-machines/" + url.PathEscape(id) }
 
-func notFoundErr(what string) error {
+func missingErr(what string) error {
 	return &Error{HTTPStatus: http.StatusNotFound, Code: CodeNotFound, Message: what + " not found"}
 }
 
@@ -211,7 +211,7 @@ func (c *Client) GetVirtualMachine(ctx context.Context, id string) (*VirtualMach
 		return nil, err
 	}
 	if out.ID == "" {
-		return nil, notFoundErr("virtual machine")
+		return nil, missingErr("virtual machine")
 	}
 	return &out, nil
 }
@@ -348,7 +348,7 @@ func (c *Client) GetSnapshot(ctx context.Context, vmID, id string) (*Snapshot, e
 		return nil, err
 	}
 	if out.Snapshot == nil || out.Snapshot.ID == "" {
-		return nil, notFoundErr("snapshot")
+		return nil, missingErr("snapshot")
 	}
 	return out.Snapshot, nil
 }
