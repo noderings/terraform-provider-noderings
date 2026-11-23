@@ -1,0 +1,42 @@
+---
+page_title: "Provider: NodeRings"
+description: |-
+  The NodeRings provider manages resources on the NodeRings cloud marketplace.
+---
+
+# NodeRings Provider
+
+The NodeRings provider manages resources on [NodeRings](https://noderings.com): hosted DNS zones and records, SSH keys, and lookups of what the marketplace offers.
+
+## Example Usage
+
+{{ tffile "examples/provider/provider.tf" }}
+
+## Authentication
+
+The provider authenticates with a NodeRings **service-account token**:
+
+1. In the NodeRings console, open **Organization > Access Control > Service accounts** and create a service account.
+2. Give it a role that covers the resources you manage. For example, DNS needs the `DnsZoneService`, `DnsRecordService` and `DnssecService` permissions, and SSH keys need `SSHKeyService`.
+3. Generate a token and store it as a secret. It is shown only once.
+4. Pass it to Terraform with the `NODERINGS_TOKEN` environment variable (recommended) or the `token` argument.
+
+A service-account token belongs to one organization. To manage several organizations, use one provider block per organization with an `alias`:
+
+```terraform
+provider "noderings" {
+  alias = "shop"
+  token = var.shop_token
+}
+
+provider "noderings" {
+  alias = "staging"
+  token = var.staging_token
+}
+```
+
+## Rate limits
+
+The NodeRings API allows about 2 requests per second for each API operation. The provider limits itself to that rate by default (`requests_per_second`) and retries rate-limited requests (`max_retries`). Requests that hit a plan quota are not retried; the error shows the quota and its current usage.
+
+{{ .SchemaMarkdown | trimspace }}
