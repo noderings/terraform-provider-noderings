@@ -369,14 +369,11 @@ func (r *vmResource) Create(ctx context.Context, req resource.CreateRequest, res
 
 	// Free plans ignore the idempotency key, so a retry after a lost response
 	// would order a second VM. Tag the VM with a nonce to find it instead.
+	// When the plan's billing type cannot be read (for example the plan is not
+	// listed on the marketplace right now), use the nonce too and let the API
+	// decide whether the plan can be ordered.
 	nonce := ""
-	offer, err := r.client.GetMarketplacePlan(ctx, in.PlanID)
-	switch {
-	case client.IsNotFound(err):
-		resp.Diagnostics.AddAttributeError(path.Root("plan_id"), "Plan is not for sale",
-			fmt.Sprintf("Plan %s is no longer on the marketplace (it may be out of capacity or withdrawn). Look up a current offer with data.noderings_marketplace_offer and apply again.", in.PlanID))
-		return
-	case err != nil || offer.BillingType == "BILLING_TYPE_FREE":
+	if offer, err := r.client.GetMarketplacePlan(ctx, in.PlanID); err != nil || offer.BillingType == "BILLING_TYPE_FREE" {
 		nonce = nonceTagPrefix + newUUID()
 		in.Tags = append(in.Tags, nonce)
 	}

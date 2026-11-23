@@ -492,7 +492,7 @@ resource "noderings_virtual_machine" "test" {
   password  = "correct-horse-battery"
 }
 `, name, fakeapi.RegionFrankfurtID)),
-				ExpectError: regexp.MustCompile(`no\s+longer\s+on\s+the\s+marketplace`),
+				ExpectError: regexp.MustCompile(`(?s)Plan\s+was\s+not\s+found.*not\s+for\s+sale`),
 			},
 			{Config: env.Config(offerConfig())},
 		},

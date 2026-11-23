@@ -142,8 +142,10 @@ func translateCreateError(err error) string {
 		msg += "\n\nTop up the organization's credit balance, or choose a cheaper plan."
 	case strings.Contains(lower, "no vm template"):
 		msg += "\n\nThis provider has no image for the chosen distro in this region. Pick another distro, or another offer with data.noderings_marketplace_offer."
-	case strings.Contains(lower, "capacity"):
+	case strings.Contains(lower, "capacity") || strings.Contains(lower, "marketplace-ready node"):
 		msg += "\n\nThe region is out of capacity for this plan. Try another provider or city."
+	case strings.Contains(lower, "plan") && (strings.Contains(lower, "not found") || strings.Contains(lower, "was not found")):
+		msg += "\n\nThe plan is not for sale (any more). Look up a current one with data.noderings_marketplace_offer and apply again."
 	}
 	var e *client.Error
 	if errors.As(err, &e) && e.IsQuota() {

@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"golang.org/x/time/rate"
 )
 
@@ -182,8 +183,16 @@ func (c *Client) do(ctx context.Context, r request, out any) error {
 			req.Header.Set("User-Agent", c.userAgent)
 		}
 
+		fields := map[string]any{"method": r.method, "path": r.path, "operation": r.op, "attempt": attempt + 1}
+		if payload != nil {
+			tflog.Trace(ctx, "NodeRings API request body", map[string]any{"operation": r.op, "body": redact(payload)})
+		}
+		started := time.Now()
 		resp, err := c.http.Do(req)
+		fields["duration_ms"] = time.Since(started).Milliseconds()
 		if err != nil {
+			fields["error"] = err.Error()
+			tflog.Debug(ctx, "NodeRings API request failed", fields)
 			lastErr = err
 			if ctx.Err() != nil || attempt >= c.maxRetries {
 				return lastErr
@@ -194,6 +203,8 @@ func (c *Client) do(ctx context.Context, r request, out any) error {
 			if readErr != nil {
 				return fmt.Errorf("reading response: %w", readErr)
 			}
+			fields["status"] = resp.StatusCode
+			tflog.Debug(ctx, "NodeRings API request", fields)
 			if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 				if out == nil || len(bytes.TrimSpace(body)) == 0 {
 					return nil
@@ -246,4 +257,35 @@ func sleep(ctx context.Context, d time.Duration) error {
 	case <-t.C:
 		return nil
 	}
+}
+
+// sensitiveKeys are JSON fields never written to logs.
+var sensitiveKeys = map[string]bool{"password": true, "value": true, "token": true, "secret": true, "clientSecret": true}
+
+// redact returns a request body for logging with sensitive fields masked.
+func redact(body []byte) string {
+	var v any
+	if json.Unmarshal(body, &v) != nil {
+		return "<non-JSON body omitted>"
+	}
+	var walk func(any) any
+	walk = func(x any) any {
+		switch t := x.(type) {
+		case map[string]any:
+			for k, val := range t {
+				if sensitiveKeys[k] {
+					t[k] = "<redacted>"
+					continue
+				}
+				t[k] = walk(val)
+			}
+		case []any:
+			for i := range t {
+				t[i] = walk(t[i])
+			}
+		}
+		return x
+	}
+	out, _ := json.Marshal(walk(v))
+	return string(out)
 }

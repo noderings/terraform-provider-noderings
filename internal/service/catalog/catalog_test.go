@@ -44,10 +44,12 @@ func TestInstantAppDataSource(t *testing.T) {
 
 func TestMarketplaceRegionsDataSource(t *testing.T) {
 	env := acctest.New(t)
-	checks := []resource.TestCheckFunc{resource.TestCheckResourceAttrSet("data.noderings_marketplace_regions.vm", "regions.0.city")}
+	// A live marketplace can legitimately be empty, so only the fake run checks content.
+	checks := []resource.TestCheckFunc{resource.TestCheckResourceAttrSet("data.noderings_marketplace_regions.vm", "regions.#")}
 	if env.Fake != nil {
 		// The API returns regions unsorted; the data source sorts them.
 		checks = append(checks,
+			resource.TestCheckResourceAttrSet("data.noderings_marketplace_regions.vm", "regions.0.city"),
 			resource.TestCheckResourceAttr("data.noderings_marketplace_regions.vm", "regions.0.country", "Germany"),
 			resource.TestCheckResourceAttr("data.noderings_marketplace_regions.vm", "regions.1.country", "Netherlands"),
 		)

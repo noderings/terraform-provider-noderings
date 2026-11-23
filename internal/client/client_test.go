@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -143,5 +144,17 @@ func TestListDNSRecordsPages(t *testing.T) {
 	recs, err := c.ListDNSRecords(context.Background(), "z", "", "")
 	if err != nil || len(recs) != 150 {
 		t.Fatalf("got %d %v", len(recs), err)
+	}
+}
+
+func TestRedact(t *testing.T) {
+	got := redact([]byte(`{"hostname":"web","password":"hunter2","record":{"value":"s3cret","rdata":["x"]},"items":[{"token":"t"}]}`))
+	for _, secret := range []string{"hunter2", "s3cret", `"t"`} {
+		if strings.Contains(got, secret) {
+			t.Fatalf("secret %s leaked: %s", secret, got)
+		}
+	}
+	if !strings.Contains(got, `"hostname":"web"`) {
+		t.Fatalf("non-sensitive field dropped: %s", got)
 	}
 }

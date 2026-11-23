@@ -331,7 +331,7 @@ resource "noderings_dns_zone_dnssec" "test" {
 			Config: env.Config(cfg(false)),
 			Check: resource.ComposeAggregateTestCheckFunc(
 				resource.TestCheckResourceAttr("noderings_dns_zone_dnssec.test", "mode", "signed_ds_pending"),
-				resource.TestMatchResourceAttr("noderings_dns_zone_dnssec.test", "ds", regexp.MustCompile(`^\d+ 13 2 [0-9A-F]+$`)),
+				resource.TestMatchResourceAttr("noderings_dns_zone_dnssec.test", "ds", regexp.MustCompile(`^\d+ 13 2 [0-9A-Fa-f]+$`)),
 			),
 		},
 		{

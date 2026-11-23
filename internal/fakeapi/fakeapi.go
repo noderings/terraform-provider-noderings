@@ -502,7 +502,7 @@ func (s *Server) dnssec(w http.ResponseWriter, r *http.Request, z *zone, p []str
 		info["algorithm"] = "13 (ECDSAP256SHA256)"
 		info["keyTag"] = "12345"
 		info["digestType"] = "2"
-		info["ds"] = "12345 13 2 0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF"
+		info["ds"] = "12345 13 2 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 		info["dnskey"] = "257 3 13 dGVzdGtleQ=="
 	}
 	writeJSON(w, 200, info)
