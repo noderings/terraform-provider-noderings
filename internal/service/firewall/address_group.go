@@ -70,7 +70,7 @@ func (r *addressGroupResource) Schema(_ context.Context, _ resource.SchemaReques
 				Required:    true,
 				ElementType: types.StringType,
 				MarkdownDescription: "IPv4 and IPv6 CIDRs, for example `203.0.113.0/24` or `2001:db8::/48`. " +
-					"The API stores each one as its network address with IPv6 compressed (`10.0.0.5/24` becomes `10.0.0.0/24`); " +
+					"The API stores each one as its network address with IPv6 compressed (`192.0.2.5/24` becomes `192.0.2.0/24`); " +
 					"write them that way to match what other tools show. Use `0.0.0.0/0` or `::/0` for every address.",
 				Validators: []validator.Set{
 					setvalidator.SizeAtLeast(1),

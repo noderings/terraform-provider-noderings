@@ -6,7 +6,7 @@ description: |-
 
 # NodeRings Provider
 
-The NodeRings provider manages resources on [NodeRings](https://noderings.com): hosted DNS zones and records, SSH keys, and lookups of what the marketplace offers.
+The NodeRings provider manages resources on [NodeRings](https://noderings.com): virtual machines and their add-ons, firewalls, game servers, hosted DNS, SSH keys and access control, plus lookups of marketplace offers, the catalog and billing.
 
 ## Example Usage
 
@@ -28,7 +28,7 @@ provider "noderings" {}
 The provider authenticates with a NodeRings **service-account token**:
 
 1. In the NodeRings console, open **Organization > Access Control > Service accounts** and create a service account.
-2. Give it a role that covers the resources you manage. For example, DNS needs the `DnsZoneService`, `DnsRecordService` and `DnssecService` permissions, and SSH keys need `SSHKeyService`.
+2. Give it a role that covers the resources you manage. For example, DNS needs the `DnsZoneService`, `DnsRecordService` and `DnssecService` permissions, and SSH keys need `SSHKeyService`. The `noderings_permissions` data source and `noderings_role` resource can build such a role.
 3. Generate a token and store it as a secret. It is shown only once.
 4. Pass it to Terraform with the `NODERINGS_TOKEN` environment variable (recommended) or the `token` argument.
 
@@ -45,6 +45,10 @@ provider "noderings" {
   token = var.staging_token
 }
 ```
+
+## Billing
+
+Creating a virtual machine or game server on a paid plan charges the organization's saved payment method or prepaid credits. Destroying one cancels its subscription immediately, without a refund for fixed-price plans. Use `deletion_protection` on resources you do not want Terraform to remove.
 
 ## Rate limits
 

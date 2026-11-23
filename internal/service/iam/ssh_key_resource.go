@@ -1,4 +1,5 @@
-// Package iam implements SSH keys and organization lookups.
+// Package iam implements SSH keys, roles, groups, role assignments, secrets,
+// environment variables and organization and user lookups.
 package iam
 
 import (

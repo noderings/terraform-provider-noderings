@@ -17,10 +17,24 @@ import (
 	"github.com/noderings/terraform-provider-noderings/internal/service/compute"
 )
 
+// Live runs order real, billed VMs, so they only run when an offer to use is
+// given: NODERINGS_ACC_VM_PLAN_CODE, NODERINGS_ACC_VM_COUNTRY and
+// NODERINGS_ACC_VM_CITY (a usage-billed plan with the guest_firewall,
+// on_demand_backup and snapshots capabilities).
+var liveOffer = struct{ code, country, city string }{fakeapi.VMPlanCode, "Germany", "Frankfurt"}
+
 func TestMain(m *testing.M) {
 	if !acctest.Live() {
 		compute.PollInterval = 5 * time.Millisecond
 		compute.MaxPollInterval = 20 * time.Millisecond
+	} else {
+		liveOffer.code = os.Getenv("NODERINGS_ACC_VM_PLAN_CODE")
+		liveOffer.country = os.Getenv("NODERINGS_ACC_VM_COUNTRY")
+		liveOffer.city = os.Getenv("NODERINGS_ACC_VM_CITY")
+		if liveOffer.code == "" || liveOffer.country == "" || liveOffer.city == "" {
+			fmt.Println("skipping compute tests: set NODERINGS_ACC_VM_PLAN_CODE, NODERINGS_ACC_VM_COUNTRY and NODERINGS_ACC_VM_CITY to run them against the live API")
+			os.Exit(0)
+		}
 	}
 	os.Exit(m.Run())
 }
@@ -32,12 +46,12 @@ func offerConfig() string {
 	return fmt.Sprintf(`
 data "noderings_marketplace_offer" "test" {
   plan_code            = %q
-  country              = "Germany"
-  city                 = "Frankfurt"
+  country              = %q
+  city                 = %q
   billing_type         = "usage"
   require_capabilities = ["guest_firewall", "on_demand_backup", "snapshots"]
 }
-`, fakeapi.VMPlanCode)
+`, liveOffer.code, liveOffer.country, liveOffer.city)
 }
 
 // vmConfig is a VM on the offer above. body holds the remaining arguments.

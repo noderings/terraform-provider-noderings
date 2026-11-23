@@ -66,7 +66,7 @@ func parsePrefix(s string) (netip.Prefix, error) {
 }
 
 // canonicalCIDR returns the network address with its prefix length, with
-// IPv6 compressed: "10.0.0.5/24" becomes "10.0.0.0/24".
+// IPv6 compressed: "192.0.2.5/24" becomes "192.0.2.0/24".
 func canonicalCIDR(s string) (string, error) {
 	p, err := parsePrefix(s)
 	if err != nil {

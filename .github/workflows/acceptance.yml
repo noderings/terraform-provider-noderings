@@ -31,4 +31,10 @@ jobs:
           NODERINGS_ACC: "1"
           NODERINGS_TOKEN: ${{ secrets.NODERINGS_TOKEN }}
           NODERINGS_ACC_DOMAIN: ${{ secrets.NODERINGS_ACC_DOMAIN }}
+          NODERINGS_ACC_VM_PLAN_CODE: ${{ vars.NODERINGS_ACC_VM_PLAN_CODE }}
+          NODERINGS_ACC_VM_COUNTRY: ${{ vars.NODERINGS_ACC_VM_COUNTRY }}
+          NODERINGS_ACC_VM_CITY: ${{ vars.NODERINGS_ACC_VM_CITY }}
+          NODERINGS_ACC_GAME_PLAN_ID: ${{ vars.NODERINGS_ACC_GAME_PLAN_ID }}
+          NODERINGS_ACC_GAME_TEMPLATE_ID: ${{ vars.NODERINGS_ACC_GAME_TEMPLATE_ID }}
+          NODERINGS_ACC_GAME_TEMPLATE2_ID: ${{ vars.NODERINGS_ACC_GAME_TEMPLATE2_ID }}
         run: go test -v -cover -timeout 50m -parallel 2 ./...

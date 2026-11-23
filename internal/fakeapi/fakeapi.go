@@ -45,8 +45,8 @@ func register(h handler) { handlers = append(handlers, h) }
 // state returns per-server state for a product, creating it on first use.
 // Callers hold s.mu (every handler does).
 func state[T any](s *Server, key string, init func() *T) *T {
-	if v, ok := s.ext[key]; ok {
-		return v.(*T)
+	if v, ok := s.ext[key].(*T); ok {
+		return v
 	}
 	v := init()
 	s.ext[key] = v
