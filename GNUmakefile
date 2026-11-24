@@ -26,4 +26,9 @@ test:
 testacc:
 	TF_ACC=1 NODERINGS_ACC=1 go test -v -cover -timeout 120m ./...
 
-.PHONY: fmt lint test testacc build install generate
+# Reinstalls one VM through every distro and checks each guest over SSH.
+# Needs the NODERINGS_ACC_VM_* variables; about an hour of one billed VM.
+testacc-os:
+	TF_ACC=1 NODERINGS_ACC=1 NODERINGS_ACC_OS_MATRIX=1 go test -v -timeout 180m ./internal/service/compute -run TestVirtualMachineGuestOSMatrix
+
+.PHONY: fmt lint test testacc testacc-os build install generate
