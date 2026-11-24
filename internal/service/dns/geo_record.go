@@ -166,6 +166,9 @@ func (r *geoRecordResource) write(ctx context.Context, plan *geoRecordModel, sta
 }
 
 func (r *geoRecordResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state geoRecordModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

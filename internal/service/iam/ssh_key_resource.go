@@ -105,6 +105,9 @@ func (r *sshKeyResource) Create(ctx context.Context, req resource.CreateRequest,
 }
 
 func (r *sshKeyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state sshKeyModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

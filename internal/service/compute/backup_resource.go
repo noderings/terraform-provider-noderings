@@ -163,6 +163,9 @@ func (r *backupResource) Create(ctx context.Context, req resource.CreateRequest,
 }
 
 func (r *backupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state backupModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

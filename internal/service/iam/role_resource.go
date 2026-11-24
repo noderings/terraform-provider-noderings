@@ -194,6 +194,9 @@ func (r *roleResource) Create(ctx context.Context, req resource.CreateRequest, r
 }
 
 func (r *roleResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state roleModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

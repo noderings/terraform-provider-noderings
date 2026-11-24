@@ -560,6 +560,9 @@ func (r *vmResource) refresh(ctx context.Context, m *vmModel, st stateSetter, di
 }
 
 func (r *vmResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state vmModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

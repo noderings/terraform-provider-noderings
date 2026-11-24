@@ -742,6 +742,9 @@ func (r *rulesResource) Update(ctx context.Context, req resource.UpdateRequest, 
 }
 
 func (r *rulesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state rulesModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

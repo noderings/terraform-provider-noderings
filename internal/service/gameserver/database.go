@@ -4,6 +4,8 @@ import (
 	"context"
 	"regexp"
 
+	"github.com/noderings/terraform-provider-noderings/internal/framework"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -190,6 +192,9 @@ func (r *databaseResource) find(list []client.GameServerDatabase, id string) *cl
 }
 
 func (r *databaseResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state databaseModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

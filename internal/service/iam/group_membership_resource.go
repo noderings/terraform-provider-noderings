@@ -199,6 +199,9 @@ func (r *groupMembershipResource) Create(ctx context.Context, req resource.Creat
 }
 
 func (r *groupMembershipResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state groupMembershipModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

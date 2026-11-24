@@ -143,6 +143,9 @@ func setIP(m *additionalIPModel, vmID string, ip client.AdditionalIP) {
 }
 
 func (r *additionalIPResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state additionalIPModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
