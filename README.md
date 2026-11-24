@@ -461,6 +461,11 @@ Tests that create billed resources only run when you choose what to buy:
 |---|---|
 | `NODERINGS_ACC_VM_PLAN_CODE`, `NODERINGS_ACC_VM_COUNTRY`, `NODERINGS_ACC_VM_CITY` | virtual machine tests (a usage-billed plan whose provider offers `guest_firewall`, `on_demand_backup` and `snapshots`) |
 | `NODERINGS_ACC_GAME_PLAN_ID`, `NODERINGS_ACC_GAME_TEMPLATE_ID`, `NODERINGS_ACC_GAME_TEMPLATE2_ID` | game server tests |
+| `NODERINGS_ACC_OS_MATRIX=1` (plus the VM variables) | `TestVirtualMachineGuestOSMatrix`: reinstalls one VM through every distro and checks over SSH that the guest runs it and that cloud-init set the hostname, root SSH key, IPv4 and DNS. Limit it with `NODERINGS_ACC_OS_MATRIX_DISTROS=ubuntu_24_04,rocky_9`; add `NODERINGS_ACC_REQUIRE_IPV6=1` to require IPv6. About an hour of one VM. |
+
+```shell
+make testacc-os   # only the guest OS matrix
+```
 
 To try a local build, add a [development override](https://developer.hashicorp.com/terraform/cli/config/config-file#development-overrides-for-provider-developers) for `noderings/noderings` pointing at your `GOBIN`, then run `make install`.
 
@@ -470,7 +475,8 @@ To try a local build, add a [development override](https://developer.hashicorp.c
 internal/client       HTTP client: auth, retries, rate limiting, errors
 internal/provider     provider schema and configuration
 internal/service/*    one package per product (compute, marketplace, firewall, dns,
-                      gameserver, iam, billing, catalog)
+                      gameserver, iam, billing, catalog); each resource's tests sit
+                      next to it (zone.go, zone_test.go)
 internal/dnsutil      DNS name and record-value normalisation
 internal/fakeapi      in-memory API used by the tests
 internal/acctest      test harness (fake or live API)
