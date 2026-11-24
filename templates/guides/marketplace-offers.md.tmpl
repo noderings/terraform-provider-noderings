@@ -7,7 +7,7 @@ description: |-
 
 # Choosing a marketplace offer
 
-NodeRings is a marketplace: independent hosting providers sell virtual machines and game servers through it. Nothing in this Terraform provider names a hosting provider. Which one your server runs on is decided when Terraform reads the marketplace, from the filters you set.
+NodeRings is a marketplace: independent hosting providers sell compute, GPU, storage, network and other resources through it. Nothing in this Terraform provider names a hosting provider. Which one your server runs on is decided when Terraform reads the marketplace, from the filters you set.
 
 ## How the marketplace is organised
 
