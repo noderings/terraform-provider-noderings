@@ -61,7 +61,7 @@ Terraform shows every change before it is made. Resources that cost money (virtu
 
 ## Choosing where your server runs
 
-NodeRings is a marketplace: independent hosting providers sell virtual machines and game servers on it. **Nothing in this Terraform provider names a hosting provider.** Which one a server is ordered from is decided each time Terraform reads the marketplace, from the filters you write.
+NodeRings is a marketplace: independent hosting providers sell compute, GPU, storage, network and other resources on it. **Nothing in this Terraform provider names a hosting provider.** Which one a server is ordered from is decided each time Terraform reads the marketplace, from the filters you write.
 
 ### Plan codes, providers and offers
 
