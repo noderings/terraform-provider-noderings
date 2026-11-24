@@ -172,6 +172,9 @@ func findNewSnapshot(ctx context.Context, c *client.Client, vmID string, before 
 }
 
 func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state snapshotModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

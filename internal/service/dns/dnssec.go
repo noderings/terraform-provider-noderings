@@ -98,6 +98,9 @@ func (r *dnssecResource) Create(ctx context.Context, req resource.CreateRequest,
 }
 
 func (r *dnssecResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state dnssecModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

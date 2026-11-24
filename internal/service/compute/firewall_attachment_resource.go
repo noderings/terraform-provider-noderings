@@ -116,6 +116,9 @@ func (r *firewallAttachmentResource) Create(ctx context.Context, req resource.Cr
 }
 
 func (r *firewallAttachmentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state firewallAttachmentModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

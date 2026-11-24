@@ -169,6 +169,9 @@ func (r *roleAssignmentResource) currentRoles(ctx context.Context, kind, id stri
 }
 
 func (r *roleAssignmentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	if framework.GoneIfNoID(ctx, req, resp) {
+		return
+	}
 	var state roleAssignmentModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
