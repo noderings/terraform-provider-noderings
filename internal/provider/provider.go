@@ -29,6 +29,9 @@ var _ provider.Provider = &nodeRingsProvider{}
 
 type nodeRingsProvider struct {
 	version string
+	// userAgent replaces the default User-Agent when set, so a wrapper such as
+	// the Pulumi provider can identify itself to the API.
+	userAgent string
 }
 
 type providerModel struct {
@@ -44,6 +47,11 @@ type providerModel struct {
 // New returns a provider factory.
 func New(version string) func() provider.Provider {
 	return func() provider.Provider { return &nodeRingsProvider{version: version} }
+}
+
+// NewWithUserAgent is New with a fixed User-Agent for every API request.
+func NewWithUserAgent(version, userAgent string) func() provider.Provider {
+	return func() provider.Provider { return &nodeRingsProvider{version: version, userAgent: userAgent} }
 }
 
 func (p *nodeRingsProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -140,11 +148,15 @@ func (p *nodeRingsProvider) Configure(ctx context.Context, req provider.Configur
 		timeout = d
 	}
 
+	userAgent := p.userAgent
+	if userAgent == "" {
+		userAgent = fmt.Sprintf("terraform-provider-noderings/%s (+https://registry.terraform.io/providers/noderings/noderings) Terraform/%s", p.version, req.TerraformVersion)
+	}
 	c, err := client.New(client.Config{
 		Endpoint:          endpoint,
 		Token:             token,
 		OrganizationID:    org,
-		UserAgent:         fmt.Sprintf("terraform-provider-noderings/%s (+https://registry.terraform.io/providers/noderings/noderings) Terraform/%s", p.version, req.TerraformVersion),
+		UserAgent:         userAgent,
 		MaxRetries:        maxRetries,
 		RequestsPerSecond: rps,
 		HTTPTimeout:       timeout,
