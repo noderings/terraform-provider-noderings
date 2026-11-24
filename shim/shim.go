@@ -14,3 +14,9 @@ import (
 func NewProvider(version string) provider.Provider {
 	return internal.New(version)()
 }
+
+// NewProviderWithUserAgent returns the provider with a fixed User-Agent for
+// every API request, for example "pulumi-noderings/0.1.1".
+func NewProviderWithUserAgent(version, userAgent string) provider.Provider {
+	return internal.NewWithUserAgent(version, userAgent)()
+}
