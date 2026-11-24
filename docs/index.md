@@ -6,7 +6,7 @@ description: |-
 
 # NodeRings Provider
 
-The NodeRings provider manages resources on [NodeRings](https://noderings.com): virtual machines and their add-ons, firewalls, game servers, hosted DNS, SSH keys and access control, plus lookups of marketplace offers, the catalog and billing.
+[NodeRings](https://noderings.com) is a marketplace for infrastructure from independent hosting providers. This provider manages: virtual machines and their add-ons, firewalls, game servers, hosted DNS, SSH keys and access control, plus lookups of marketplace offers, the catalog and billing.
 
 ## Example Usage
 
