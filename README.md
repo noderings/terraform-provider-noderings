@@ -493,7 +493,7 @@ examples/, templates/ inputs for the generated docs/
 
 ## Releasing
 
-Releases are built by GoReleaser when a `v*` tag is pushed (`.github/workflows/release.yml`). The workflow signs the checksums with the GPG key stored in the `GPG_PRIVATE_KEY` and `PASSPHRASE` repository secrets; the matching public key must be added to the namespace in the Terraform Registry.
+Releases are automated with [release-please](https://github.com/googleapis/release-please) and GoReleaser: merging the release pull request tags `vX.Y.Z`, and `.github/workflows/release.yml` builds, signs and publishes the release that the Terraform Registry and the OpenTofu Registry read. Every release zip has a GitHub build provenance attestation (`gh attestation verify <zip> -R noderings/terraform-provider-noderings`). See [CONTRIBUTING.md](CONTRIBUTING.md#releasing) for the details.
 
 ## License
 

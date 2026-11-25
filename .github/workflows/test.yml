@@ -5,13 +5,13 @@ name: Tests
 
 on:
   pull_request:
-    paths-ignore:
-      - 'README.md'
   push:
     branches:
       - main
-    paths-ignore:
-      - 'README.md'
+  schedule:
+    # Weekly, to catch breakage from new Terraform and OpenTofu releases.
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -29,6 +29,7 @@ jobs:
           cache: true
       - run: go mod download
       - run: go build -v .
+      - run: go vet ./...
       - name: Run linters
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
@@ -52,6 +53,27 @@ jobs:
         run: |
           git diff --compact-summary --exit-code || \
             (echo; echo "Unexpected difference in directories after code generation. Run 'make generate' command and commit."; exit 1)
+
+  goreleaser:
+    name: GoReleaser config
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - name: Check the config and build a snapshot (unsigned)
+        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
+        with:
+          args: release --snapshot --clean --skip=sign,publish
+      - name: Check the registry assets
+        run: |
+          ls dist/*_SHA256SUMS dist/*_manifest.json
+          test "$(ls dist/*.zip | wc -l)" -ge 10
 
   test:
     name: 'Tests: Terraform ${{ matrix.terraform }}'
@@ -77,3 +99,31 @@ jobs:
           terraform_wrapper: false
       - run: go mod download
       - run: go test -v -cover -timeout 15m ./...
+
+  test-opentofu:
+    name: 'Tests: OpenTofu ${{ matrix.tofu }}'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        tofu:
+          - '1.10.*'
+          - '1.13.*'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_version: ${{ matrix.tofu }}
+          tofu_wrapper: false
+      - run: go mod download
+      - name: go test with OpenTofu
+        run: |
+          export TF_ACC_TERRAFORM_PATH="$(command -v tofu)"
+          export TF_ACC_PROVIDER_HOST=registry.opentofu.org
+          go test -v -cover -timeout 15m ./...

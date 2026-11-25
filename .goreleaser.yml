@@ -65,7 +65,10 @@ release:
   extra_files:
     - glob: 'terraform-registry-manifest.json'
       name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
-  # If you want to manually examine the release before its live, uncomment this line:
-  # draft: true
+  # release-please creates the release as a draft (with the changelog) when
+  # it pushes the tag. Reuse that draft, keep its notes, and publish it once
+  # every asset is uploaded, so the registries never see a half-empty release.
+  use_existing_draft: true
+  mode: keep-existing
 changelog:
   disable: true

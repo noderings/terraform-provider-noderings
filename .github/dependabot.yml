@@ -1,22 +1,37 @@
 # See GitHub's documentation for more information on this file:
 # https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates
+#
+# Commit messages use Conventional Commits so release-please can sort them:
+# "deps" updates (the provider's own Go modules) show up in the changelog,
+# "chore" and "ci" updates (tools and GitHub Actions) do not.
 version: 2
 updates:
-  # Maintain dependencies for Go modules
+  # Go modules built into the provider.
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      # Check for updates to Go modules every weekday
-      interval: "daily"
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Etc/UTC"
+    commit-message:
+      prefix: "deps"
     groups:
       # Group all terraform-plugin-(go|sdk|framework|testing) dependencies together
       "terraform-plugin":
         patterns:
           - "github.com/hashicorp/terraform-plugin-*"
+  # Code generation tools (tfplugindocs).
   - package-ecosystem: "gomod"
     directory: "/tools"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Etc/UTC"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
   - package-ecosystem: "github-actions"
     directory: "/"
     groups:
@@ -28,3 +43,5 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Etc/UTC"
+    commit-message:
+      prefix: "ci"

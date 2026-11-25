@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "go",
+  "include-v-in-tag": true,
+  "include-component-in-tag": false,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
+  "draft": true,
+  "force-tag-creation": true,
+  "pull-request-title-pattern": "chore: release ${version}",
+  "changelog-sections": [
+    { "type": "feat", "section": "FEATURES" },
+    { "type": "fix", "section": "BUG FIXES" },
+    { "type": "perf", "section": "ENHANCEMENTS" },
+    { "type": "deps", "section": "DEPENDENCIES" },
+    { "type": "docs", "section": "DOCUMENTATION" },
+    { "type": "refactor", "section": "NOTES", "hidden": true },
+    { "type": "chore", "section": "NOTES", "hidden": true },
+    { "type": "ci", "section": "NOTES", "hidden": true },
+    { "type": "test", "section": "NOTES", "hidden": true },
+    { "type": "build", "section": "NOTES", "hidden": true }
+  ],
+  "packages": {
+    ".": {
+      "package-name": "terraform-provider-noderings",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+# Prints the public half of the release signing key (from the GPG_PRIVATE_KEY
+# secret) and uploads it as an artifact, for adding it to the Terraform
+# Registry and the OpenTofu Registry. Run it by hand from the Actions tab.
+name: Signing key
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-key:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
+        id: import_gpg
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+      - name: Export the public key
+        env:
+          FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+        run: |
+          gpg --armor --export "${FINGERPRINT}" > signing-key.asc
+          {
+            echo "### Release signing key"
+            echo
+            echo "Fingerprint: \`${FINGERPRINT}\`"
+            echo
+            echo '```'
+            cat signing-key.asc
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: signing-key
+          path: signing-key.asc
