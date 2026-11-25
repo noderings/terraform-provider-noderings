@@ -1,6 +1,14 @@
 # Terraform Provider for NodeRings
 
+[![Tests](https://github.com/noderings/terraform-provider-noderings/actions/workflows/test.yml/badge.svg)](https://github.com/noderings/terraform-provider-noderings/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/noderings/terraform-provider-noderings?sort=semver)](https://github.com/noderings/terraform-provider-noderings/releases)
+[![Terraform Registry](https://img.shields.io/badge/terraform-noderings%2Fnoderings-7B42BC.svg?logo=terraform)](https://registry.terraform.io/providers/noderings/noderings)
+[![OpenTofu Registry](https://img.shields.io/badge/opentofu-noderings%2Fnoderings-FFDA18.svg?logo=opentofu)](https://search.opentofu.org/provider/noderings/noderings)
+[![License](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](LICENSE)
+
 The NodeRings provider lets Terraform and OpenTofu manage resources on [NodeRings](https://noderings.com).
+
+New to it? The step-by-step guide [Order a VPS with Terraform and pay by the hour](https://noderings.com/blog/terraform-vps) walks through a first run.
 
 - Registry: [registry.terraform.io/providers/noderings/noderings](https://registry.terraform.io/providers/noderings/noderings)
 - Documentation: [`docs/`](docs/index.md)
