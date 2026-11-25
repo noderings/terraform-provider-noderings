@@ -72,7 +72,11 @@ jobs:
           args: release --snapshot --clean --skip=sign,publish
       - name: Check the registry assets
         run: |
-          ls dist/*_SHA256SUMS dist/*_manifest.json
+          # The registries need the zips, SHA256SUMS listing them and the
+          # registry manifest (signed in a real release).
+          sums=$(ls dist/*_SHA256SUMS)
+          grep -q '_manifest.json$' "${sums}"
+          test "$(grep -c '\.zip$' "${sums}")" -ge 10
           test "$(ls dist/*.zip | wc -l)" -ge 10
 
   test:
