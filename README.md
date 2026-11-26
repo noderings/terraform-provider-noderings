@@ -21,7 +21,7 @@ New to it? The step-by-step guide [Order a VPS with Terraform and pay by the hou
 | Marketplace | | `noderings_marketplace_offer`, `noderings_marketplace_offers`, `noderings_marketplace_provider`, `noderings_marketplace_providers`, `noderings_marketplace_plan`, `noderings_marketplace_plan_codes`, `noderings_marketplace_addon`, `noderings_storefront` |
 | Firewall | `noderings_firewall_address_group`, `noderings_firewall_ruleset`, `noderings_firewall_ruleset_rules`, `noderings_firewall_ruleset_attachment` | `noderings_firewall_address_group`, `noderings_firewall_ruleset`, `noderings_firewall_rulesets` |
 | DNS | `noderings_dns_zone`, `noderings_dns_record`, `noderings_dns_geo_record`, `noderings_dns_zone_dnssec` | `noderings_dns_zone` |
-| Game Servers | `noderings_game_server`, `noderings_game_server_allocation`, `noderings_game_server_database`, `noderings_game_server_schedule`, `noderings_game_server_backup` | `noderings_game_server`, `noderings_game_servers`, `noderings_game_server_games`, `noderings_game_server_startup`, `noderings_game_server_resources` |
+| `noderings_game_server` | `noderings_game_server`, `noderings_game_server_allocation`, `noderings_game_server_database`, `noderings_game_server_schedule`, `noderings_game_server_backup` | `noderings_game_server`, `noderings_game_servers`, `noderings_game_server_games`, `noderings_game_server_startup`, `noderings_game_server_resources` |
 | IAM | `noderings_ssh_key`, `noderings_role`, `noderings_group`, `noderings_group_membership`, `noderings_role_assignment`, `noderings_secret`, `noderings_environment_variable` | `noderings_organization`, `noderings_ssh_key`, `noderings_permission`, `noderings_permissions`, `noderings_role`, `noderings_roles`, `noderings_users` |
 | Billing | | `noderings_credit_balance`, `noderings_subscription`, `noderings_entitlements` |
 | Catalog | | `noderings_distros`, `noderings_instant_app`, `noderings_instant_apps`, `noderings_marketplace_regions` |
@@ -65,7 +65,7 @@ terraform plan
 terraform apply
 ```
 
-Terraform shows every change before it is made. Resources that cost money (virtual machines, add-ons, game servers) are only ordered on `apply`.
+Terraform shows every change before it is made. Resources that cost money (virtual machines and add-ons) are only ordered on `apply`.
 
 ## Choosing where your server runs
 
@@ -78,7 +78,7 @@ NodeRings is a marketplace: independent hosting providers sell compute, GPU, sto
 | Plan code | A NodeRings-wide size. Every provider selling that size lists it under the same code. | `SC-GC-1C-1G-20`: shared compute, 1 vCPU, 1 GB RAM, 20 GB disk |
 | Provider | A hosting company selling on NodeRings, with an ID and optionally a public storefront. | storefront `acme-hosting` |
 | Offer | One provider's plan for a code in one city, with its prices. | Acme Hosting's `SC-GC-1C-1G-20` in Frankfurt, hourly |
-| `plan_id`, `region_id` | The IDs of the chosen offer's plan and city. A VM or game server is ordered with these. | |
+| `plan_id`, `region_id` | The IDs of the chosen offer's plan and city. A VM is ordered with these. | |
 
 ### Who decides
 
@@ -150,7 +150,7 @@ Other lookups: `noderings_marketplace_regions` (cities with offers), `noderings_
 
 ### Keeping a server on its offer
 
-The lookup runs again on every `terraform plan`. If a cheaper or better-rated offer appears, or the chosen one is no longer sold, it returns a different `plan_id` or `region_id`, and **changing either replaces the VM or game server**: Terraform plans to delete it and order a new one, and its disk is lost. Read the plan before applying, and use one or more of:
+The lookup runs again on every `terraform plan`. If a cheaper or better-rated offer appears, or the chosen one is no longer sold, it returns a different `plan_id` or `region_id`, and **changing either replaces the VM**: Terraform plans to delete it and order a new one, and its disk is lost. Read the plan before applying, and use one or more of:
 
 ```terraform
 resource "noderings_virtual_machine" "web" {
@@ -172,7 +172,7 @@ resource "noderings_virtual_machine" "web" {
 
 Pinning `provider_id`, as above, also stops a different provider from being picked.
 
-Game servers are chosen the same way, with a game-server plan code (`SC-GS-...`) and `asset_type = "game_server"`. Add-ons (backups, additional IPs) are sold by the provider the VM runs on; `noderings_marketplace_addon` with `virtual_machine_id` finds them.
+Plans for `noderings_game_server` are chosen the same way, with a plan code (`SC-GS-...`) and `asset_type = "game_server"`. Add-ons (backups, additional IPs) are sold by the provider the VM runs on; `noderings_marketplace_addon` with `virtual_machine_id` finds them.
 
 More detail: [Choosing a marketplace offer](docs/guides/marketplace-offers.md).
 
@@ -347,7 +347,7 @@ output "ds_record" {
 
 ### A Minecraft server
 
-Game-server plans come from the NodeRings marketplace. `noderings_game_server_games` lists the games a plan can run.
+`noderings_game_server` plans come from the NodeRings marketplace. `noderings_game_server_games` lists the games a plan can run.
 
 ```terraform
 variable "game_plan_id" {
@@ -434,7 +434,7 @@ Every resource page in the [documentation](docs/) shows its import ID format.
 
 ### Good to know
 
-- **Billing.** Creating a VM, add-on or game server places an order. Hourly (`usage`) plans are paid from prepaid credits; fixed-price plans are charged to your card. Destroying a resource cancels it right away, without a refund for fixed-price plans.
+- **Billing.** Creating a VM or add-on places an order. Hourly (`usage`) plans are paid from prepaid credits; fixed-price plans are charged to your card. Destroying a resource cancels it right away, without a refund for fixed-price plans.
 - **`deletion_protection`.** Set it on anything you don't want a `terraform destroy` to remove. Terraform refuses to delete it until you set it back to `false`.
 - **Rate limits.** The API allows about 2 requests per second per operation. The provider paces itself and retries rate-limited calls, so large plans are slower but don't fail.
 - **Debugging.** `TF_LOG=DEBUG terraform apply` logs every API call; `TF_LOG=TRACE` adds request and response bodies, with passwords, tokens and secret values masked.
@@ -468,7 +468,7 @@ Tests that create billed resources only run when you choose what to buy:
 | Variables | Enables |
 |---|---|
 | `NODERINGS_ACC_VM_PLAN_CODE`, `NODERINGS_ACC_VM_COUNTRY`, `NODERINGS_ACC_VM_CITY` | virtual machine tests (a usage-billed plan whose provider offers `guest_firewall`, `on_demand_backup` and `snapshots`) |
-| `NODERINGS_ACC_GAME_PLAN_ID`, `NODERINGS_ACC_GAME_TEMPLATE_ID`, `NODERINGS_ACC_GAME_TEMPLATE2_ID` | game server tests |
+| `NODERINGS_ACC_GAME_PLAN_ID`, `NODERINGS_ACC_GAME_TEMPLATE_ID`, `NODERINGS_ACC_GAME_TEMPLATE2_ID` | `noderings_game_server` acceptance tests |
 | `NODERINGS_ACC_OS_MATRIX=1` (plus the VM variables) | `TestVirtualMachineGuestOSMatrix`: reinstalls one VM through every distro and checks over SSH that the guest runs it and that cloud-init set the hostname, root SSH key, IPv4 and DNS. Limit it with `NODERINGS_ACC_OS_MATRIX_DISTROS=ubuntu_24_04,rocky_9`; add `NODERINGS_ACC_REQUIRE_IPV6=1` to require IPv6. About an hour of one VM. |
 
 ```shell

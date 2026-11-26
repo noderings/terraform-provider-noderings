@@ -6,7 +6,7 @@ description: |-
 
 # NodeRings Provider
 
-[NodeRings](https://noderings.com) is a marketplace for infrastructure from independent hosting providers. This provider manages: virtual machines and their add-ons, firewalls, game servers, hosted DNS, SSH keys and access control, plus lookups of marketplace offers, the catalog and billing.
+[NodeRings](https://noderings.com) is a marketplace for infrastructure from independent hosting providers. This provider manages: virtual machines and their add-ons, firewalls, hosted DNS, SSH keys and access control, plus lookups of marketplace offers, the catalog and billing.
 
 ## Example Usage
 
@@ -37,7 +37,7 @@ provider "noderings" {
 
 ## Billing
 
-Creating a virtual machine or game server on a paid plan charges the organization's saved payment method or prepaid credits. Destroying one cancels its subscription immediately, without a refund for fixed-price plans. Use `deletion_protection` on resources you do not want Terraform to remove.
+Creating a virtual machine on a paid plan charges the organization's saved payment method or prepaid credits. Destroying one cancels its subscription immediately, without a refund for fixed-price plans. Use `deletion_protection` on resources you do not want Terraform to remove.
 
 ## Rate limits
 
