@@ -1,0 +1,16 @@
+name: Ensure unzip
+description: >-
+  setup-terraform and setup-opentofu extract their downloads with `unzip`.
+  GitHub-hosted images have it; the org runner does not, so this puts a
+  small Python stand-in on PATH there. It does nothing when unzip exists.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        if command -v unzip >/dev/null; then exit 0; fi
+        dir="$RUNNER_TEMP/ensure-unzip"
+        mkdir -p "$dir"
+        cp "$GITHUB_ACTION_PATH/unzip.py" "$dir/unzip"
+        chmod +x "$dir/unzip"
+        echo "$dir" >> "$GITHUB_PATH"
