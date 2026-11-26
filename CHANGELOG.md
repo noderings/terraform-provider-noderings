@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/noderings/terraform-provider-noderings/compare/v0.1.2...v0.2.0) (2026-11-26)
+
+
+### FEATURES
+
+* choose a marketplace offer's provider by name ([#10](https://github.com/noderings/terraform-provider-noderings/issues/10)) ([bf1db8e](https://github.com/noderings/terraform-provider-noderings/commit/bf1db8e088e0369e30c8a2f03852cdbe39ef8225))
+
 ## [0.1.2](https://github.com/noderings/terraform-provider-noderings/compare/v0.1.1...v0.1.2) (2026-11-26)
 
 
