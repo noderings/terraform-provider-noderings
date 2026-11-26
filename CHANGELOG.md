@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/noderings/terraform-provider-noderings/compare/v0.1.1...v0.1.2) (2026-11-26)
+
+
+### DOCUMENTATION
+
+* remove game-servers wording from provider overview ([#8](https://github.com/noderings/terraform-provider-noderings/issues/8)) ([fcd9531](https://github.com/noderings/terraform-provider-noderings/commit/fcd95312cbd14dc743306f4a81f128e5c2bdd74f))
+
 ## [0.1.1](https://github.com/noderings/terraform-provider-noderings/compare/v0.1.0...v0.1.1) (2026-11-25)
 
 
