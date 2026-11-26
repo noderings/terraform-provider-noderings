@@ -2,7 +2,7 @@
 page_title: "Choosing a marketplace offer"
 subcategory: "Guides"
 description: |-
-  How the provider picks which hosting provider, plan and region a virtual machine or game server is ordered from, and how to control that choice.
+  How the provider picks which hosting provider, plan and region a virtual machine is ordered from, and how to control that choice.
 ---
 
 # Choosing a marketplace offer
@@ -16,7 +16,7 @@ NodeRings is a marketplace: independent hosting providers sell compute, GPU, sto
 | **Plan code** | A NodeRings-wide size. Every hosting provider that sells this size lists it under the same code. | `SC-GC-1C-1G-20` is shared compute, 1 vCPU, 1 GB RAM, 20 GB disk |
 | **Provider** | A hosting company selling on NodeRings. Each has an ID and may have a public storefront. | `Acme Hosting`, storefront `acme-hosting` |
 | **Offer** | One provider's plan for a code, in one city, with its prices. | Acme Hosting's `SC-GC-1C-1G-20` in Frankfurt, billed hourly |
-| **Plan ID / region ID** | The IDs of that offer's plan and city. These are what a VM or game server is ordered with. | `plan_id`, `region_id` |
+| **Plan ID / region ID** | The IDs of that offer's plan and city. These are what a VM is ordered with. | `plan_id`, `region_id` |
 
 The same plan code is usually sold by several providers, in several cities, at different prices. Plan and region IDs belong to one provider and can change, so look them up with a data source instead of hard-coding them.
 
@@ -137,9 +137,9 @@ output "providers" {
 }
 ```
 
-## Game servers
+## `noderings_game_server`
 
-Game servers are chosen the same way, with a game-server plan code (`SC-GS-...`) and `asset_type = "game_server"`. The games a plan can run depend on its provider; list them with [`noderings_game_server_games`](../data-sources/game_server_games.md).
+Plans for `noderings_game_server` are chosen the same way, with a plan code (`SC-GS-...`) and `asset_type = "game_server"`. The games a plan can run depend on its provider; list them with [`noderings_game_server_games`](../data-sources/game_server_games.md).
 
 ## Add-ons
 
