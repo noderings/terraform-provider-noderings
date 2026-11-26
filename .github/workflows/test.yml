@@ -47,6 +47,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
+      - uses: ./.github/actions/ensure-unzip
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_wrapper: false
@@ -101,6 +102,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
+      - uses: ./.github/actions/ensure-unzip
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ matrix.terraform }}
@@ -126,6 +128,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
+      - uses: ./.github/actions/ensure-unzip
       - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
         with:
           tofu_version: ${{ matrix.tofu }}
