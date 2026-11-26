@@ -1,3 +1,14 @@
+# Changelog
+
+## [0.1.1](https://github.com/noderings/terraform-provider-noderings/compare/v0.1.0...v0.1.1) (2026-11-25)
+
+
+### DOCUMENTATION
+
+* add community health files ([3f025c1](https://github.com/noderings/terraform-provider-noderings/commit/3f025c1469ea757e3e8898a26dd52d1fc23efccb))
+* add README badges and a link to the how-to guide ([58c7608](https://github.com/noderings/terraform-provider-noderings/commit/58c7608ff9070a9b1bdf8910d8e3fd19734facef))
+* describe NodeRings as a marketplace for any infrastructure ([#3](https://github.com/noderings/terraform-provider-noderings/issues/3)) ([998cefb](https://github.com/noderings/terraform-provider-noderings/commit/998cefbf113d9059f1cf7ebc2b96be902f403b3a))
+
 ## 0.1.0 (November 23, 2026)
 
 FEATURES:
