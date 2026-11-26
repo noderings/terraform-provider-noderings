@@ -29,7 +29,7 @@ The same plan code is usually sold by several providers, in several cities, at d
    - `billing_type`: `usage` (hourly, paid from prepaid credit), `subscription` (monthly, charged to your card) or `free`. Set it: without it each provider contributes one plan of its choice for the code.
    - `require_capabilities`: only providers whose platform supports all of these, for example `guest_firewall`, `on_demand_backup`, `snapshots` or `instant_apps`.
    - `require_ipv6`: only offers with IPv6 in the city.
-   - `provider_id` or `storefront_slug`: only offers from that one provider.
+   - `provider_id`, `storefront_slug` or `provider_name`: only offers from that one provider. The name is matched without regard to case; if more than one provider has it, the lookup fails and asks for the ID or storefront slug.
 3. It sorts what is left by `sort`: `price` (cheapest first, the default) or `rating` (best-rated provider first), and returns the first one.
 
 If nothing matches, the data source fails and says which filter left no offers.
@@ -56,7 +56,7 @@ A data source is read again on every `plan`. If a cheaper or better-rated offer 
 
 Always read the plan before applying. To stop this from happening, do one or more of the following.
 
-**Pin the provider.** With `provider_id` (or `storefront_slug`) the lookup only considers that provider, so a cheaper competitor cannot move your server:
+**Pin the provider.** With `provider_id` (or `storefront_slug` or `provider_name`) the lookup only considers that provider, so a cheaper competitor cannot move your server:
 
 ```terraform
 data "noderings_marketplace_offer" "web" {

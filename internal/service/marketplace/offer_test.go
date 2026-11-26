@@ -99,6 +99,19 @@ data "noderings_marketplace_offer" "test" {
 					resource.TestCheckResourceAttr(offer, "region_id", fakeapi.RegionAmsterdamID),
 				),
 			},
+			{
+				// The name matches without regard to case or surrounding spaces and
+				// beats the cheaper Budget Cloud offer; the configured name is kept.
+				Config: env.Config(offerConfig(`
+  billing_type  = "usage"
+  provider_name = "  example HOSTING "`)),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(offer, "plan_id", fakeapi.VMPlanUsageFRAID),
+					resource.TestCheckResourceAttr(offer, "region_id", fakeapi.RegionFrankfurtID),
+					resource.TestCheckResourceAttr(offer, "provider_id", fakeapi.ProviderID),
+					resource.TestCheckResourceAttr(offer, "provider_name", "  example HOSTING "),
+				),
+			},
 		},
 	})
 }
@@ -126,6 +139,12 @@ data "noderings_marketplace_offer" "test" {
 				ExpectError: regexp.MustCompile(`1\s+offer\(s\)\s+matched\s+the\s+location`),
 			},
 			{
+				Config: env.Config(offerConfig(`
+  billing_type  = "usage"
+  provider_name = "Nobody Hosting"`)),
+				ExpectError: regexp.MustCompile(`(?s)No\s+offer\s+for\s+plan\s+code.*Frankfurt,\s+germany\s+from\s+provider\s+Nobody\s+Hosting\s+with\s+billing\s+type\s+usage`),
+			},
+			{
 				Config: env.Config(offerConfig(`billing_type = "usage"`)),
 			},
 		},
@@ -142,7 +161,16 @@ func TestMarketplaceOfferValidation(t *testing.T) {
 				Config:      env.Config(offerConfig(`provider_id = "5a1e0000-0000-4000-8000-000000000001"` + "\n" + `storefront_slug = "x"`)),
 				ExpectError: regexp.MustCompile(`cannot\s+be\s+configured\s+together`),
 			},
+			{
+				Config:      env.Config(offerConfig(`provider_id = "5a1e0000-0000-4000-8000-000000000001"` + "\n" + `provider_name = "x"`)),
+				ExpectError: regexp.MustCompile(`cannot\s+be\s+configured\s+together`),
+			},
+			{
+				Config:      env.Config(offerConfig(`storefront_slug = "x"` + "\n" + `provider_name = "x"`)),
+				ExpectError: regexp.MustCompile(`cannot\s+be\s+configured\s+together`),
+			},
 			{Config: env.Config(offerConfig(`provider_id = "nope"`)), ExpectError: regexp.MustCompile(`must\s+be\s+a\s+UUID`)},
+			{Config: env.Config(offerConfig(`provider_name = "  "`)), ExpectError: regexp.MustCompile(`must\s+not\s+be\s+blank`)},
 		},
 	})
 }
@@ -166,6 +194,21 @@ data "noderings_marketplace_offers" "test" {
 				resource.TestCheckResourceAttr("data.noderings_marketplace_offers.test", "offers.1.plan_id", fakeapi.VMPlanUsageFRAID),
 				resource.TestCheckResourceAttr("data.noderings_marketplace_offers.test", "offers.1.region_id", fakeapi.RegionFrankfurtID),
 				resource.TestCheckResourceAttr("data.noderings_marketplace_offers.test", "offers.1.total_reviews", "120"),
+			),
+		}, {
+			Config: env.Config(fmt.Sprintf(`
+data "noderings_marketplace_offers" "test" {
+  plan_code     = %q
+  country       = "Germany"
+  city          = "Frankfurt"
+  billing_type  = "usage"
+  provider_name = "budget cloud"
+}
+`, fakeapi.VMPlanCode)),
+			Check: resource.ComposeAggregateTestCheckFunc(
+				resource.TestCheckResourceAttr("data.noderings_marketplace_offers.test", "offers.#", "1"),
+				resource.TestCheckResourceAttr("data.noderings_marketplace_offers.test", "offers.0.provider_id", fakeapi.BudgetProviderID),
+				resource.TestCheckResourceAttr("data.noderings_marketplace_offers.test", "offers.0.provider_name", fakeapi.BudgetProviderName),
 			),
 		}},
 	})

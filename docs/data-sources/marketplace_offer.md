@@ -23,6 +23,15 @@ data "noderings_marketplace_offer" "web" {
   require_capabilities = ["guest_firewall", "on_demand_backup"]
 }
 
+# The same plan code from one provider, chosen by name (any case).
+data "noderings_marketplace_offer" "acme" {
+  plan_code     = "SC-GC-2C-4G-80"
+  country       = "Germany"
+  city          = "Frankfurt"
+  billing_type  = "usage"
+  provider_name = "Acme Hosting"
+}
+
 resource "noderings_virtual_machine" "web" {
   hostname  = "web-1"
   plan_id   = data.noderings_marketplace_offer.web.plan_id
@@ -50,11 +59,12 @@ variable "root_password" {
 
 - `asset_type` (String) `virtual_machine` (default) or `game_server`. Only checked when the provider is known (`provider_id` or `storefront_slug`).
 - `billing_type` (String) `usage` (billed hourly from credit), `subscription` (billed monthly in advance) or `free`. Strongly recommended: without it each provider offers one arbitrary plan for the code.
-- `provider_id` (String) Only offers from this provider. Conflicts with `storefront_slug`. Afterwards, the chosen provider.
+- `provider_id` (String) Only offers from this provider. Conflicts with `storefront_slug` and `provider_name`. Afterwards, the chosen provider.
+- `provider_name` (String) Only offers from the provider with this name, for example `Acme Hosting` (case-insensitive, surrounding spaces ignored). Fails if more than one provider has the name; give `provider_id` or `storefront_slug` then. Conflicts with `provider_id` and `storefront_slug`. Afterwards, the chosen provider's name.
 - `require_capabilities` (Set of String) Only providers whose platform supports all of these, for example `guest_firewall`, `on_demand_backup`, `snapshots` or `instant_apps`.
 - `require_ipv6` (Boolean) Only offers with IPv6 in the city.
 - `sort` (String) `price` (cheapest first, the default) or `rating` (best rated first).
-- `storefront_slug` (String) Only offers from the provider with this public storefront, for example `acme-hosting`.
+- `storefront_slug` (String) Only offers from the provider with this public storefront, for example `acme-hosting`. Conflicts with `provider_id` and `provider_name`.
 
 ### Read-Only
 
@@ -64,7 +74,6 @@ variable "root_password" {
 - `plan_id` (String) Plan ID to use as `plan_id` of a VM or game server.
 - `platform_driver` (String) Platform, for example `proxmox`, `virtfusion` or `solusvm`.
 - `prices` (Attributes List) Prices. (see [below for nested schema](#nestedatt--prices))
-- `provider_name` (String) Name of the provider.
 - `ram_gb` (Number) Memory in GB.
 - `rating` (Number) Average customer rating of the provider (0-5).
 - `region_id` (String) Region ID to use as `region_id`.

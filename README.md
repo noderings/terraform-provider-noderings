@@ -87,7 +87,7 @@ The choice is split between the NodeRings API and this provider:
 1. **The NodeRings API decides which offers exist.** When `noderings_marketplace_offer` is read, the provider asks the API for providers selling `plan_code` in `country`/`city`, narrowed by `billing_type` and `require_ipv6`. The API only returns providers that are currently selling that plan there.
 2. **This provider filters and ranks them** (in [`internal/service/marketplace/offer.go`](internal/service/marketplace/offer.go), function `findOffers`):
    - drops offers whose platform lacks any of `require_capabilities` (for example `guest_firewall`, `on_demand_backup`, `snapshots`);
-   - with `provider_id` or `storefront_slug`, only looks at that one provider's plans;
+   - with `provider_id` or `storefront_slug`, only looks at that one provider's plans; with `provider_name`, only at offers from the provider with that name (any case; fails if more than one provider has it);
    - sorts by `sort`: `price` (cheapest first, the default) or `rating` (best-rated provider first); ties go to the better rating, then to the provider name;
    - returns the first offer.
 3. **You decide** through those arguments. If nothing matches, the lookup fails and says which filter removed the offers and in which cities the plan code is sold.
@@ -134,7 +134,7 @@ output "offers" {
 }
 ```
 
-Then pin one with `provider_id` (or its `storefront_slug`):
+Then pin one with `provider_id` (or its `storefront_slug`, or its name as `provider_name`):
 
 ```terraform
 data "noderings_marketplace_offer" "web" {

@@ -5,6 +5,7 @@ package marketplace
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -127,15 +128,19 @@ type offerQuery struct {
 	AssetType           types.String `tfsdk:"asset_type"`
 	ProviderID          types.String `tfsdk:"provider_id"`
 	StorefrontSlug      types.String `tfsdk:"storefront_slug"`
+	ProviderName        types.String `tfsdk:"provider_name"`
 	RequireIPv6         types.Bool   `tfsdk:"require_ipv6"`
 	RequireCapabilities types.Set    `tfsdk:"require_capabilities"`
 	Sort                types.String `tfsdk:"sort"`
 }
 
 func queryAttrs(single bool) map[string]schema.Attribute {
-	providerDesc := "Only offers from this provider. Conflicts with `storefront_slug`."
+	providerDesc := "Only offers from this provider. Conflicts with `storefront_slug` and `provider_name`."
+	nameDesc := "Only offers from the provider with this name, for example `Acme Hosting` (case-insensitive, surrounding spaces ignored). " +
+		"Fails if more than one provider has the name; give `provider_id` or `storefront_slug` then. Conflicts with `provider_id` and `storefront_slug`."
 	if single {
-		providerDesc = "Only offers from this provider. Conflicts with `storefront_slug`. Afterwards, the chosen provider."
+		providerDesc += " Afterwards, the chosen provider."
+		nameDesc += " Afterwards, the chosen provider's name."
 	}
 	return map[string]schema.Attribute{
 		"plan_code": schema.StringAttribute{Required: true, MarkdownDescription: "Platform plan code, for example `SC-GC-2C-4G-80`. See `data.noderings_marketplace_plan_codes`.",
@@ -150,8 +155,10 @@ func queryAttrs(single bool) map[string]schema.Attribute {
 		"asset_type": schema.StringAttribute{Optional: true, MarkdownDescription: "`virtual_machine` (default) or `game_server`. Only checked when the provider is known (`provider_id` or `storefront_slug`).",
 			Validators: []validator.String{stringvalidator.OneOf("virtual_machine", "game_server")}},
 		"provider_id": schema.StringAttribute{Optional: true, Computed: single, MarkdownDescription: providerDesc, Validators: []validator.String{framework.UUID()}},
-		"storefront_slug": schema.StringAttribute{Optional: true, MarkdownDescription: "Only offers from the provider with this public storefront, for example `acme-hosting`.",
+		"storefront_slug": schema.StringAttribute{Optional: true, MarkdownDescription: "Only offers from the provider with this public storefront, for example `acme-hosting`. Conflicts with `provider_id` and `provider_name`.",
 			Validators: []validator.String{stringvalidator.LengthAtLeast(1)}},
+		"provider_name": schema.StringAttribute{Optional: true, Computed: single, MarkdownDescription: nameDesc,
+			Validators: []validator.String{stringvalidator.RegexMatches(regexp.MustCompile(`\S`), "must not be blank")}},
 		"require_ipv6": schema.BoolAttribute{Optional: true, MarkdownDescription: "Only offers with IPv6 in the city."},
 		"require_capabilities": schema.SetAttribute{Optional: true, ElementType: types.StringType,
 			MarkdownDescription: "Only providers whose platform supports all of these, for example `guest_firewall`, `on_demand_backup`, `snapshots` or `instant_apps`.",
@@ -162,7 +169,7 @@ func queryAttrs(single bool) map[string]schema.Attribute {
 }
 
 func queryValidators() []datasource.ConfigValidator {
-	return []datasource.ConfigValidator{datasourcevalidator.Conflicting(path.MatchRoot("provider_id"), path.MatchRoot("storefront_slug"))}
+	return []datasource.ConfigValidator{datasourcevalidator.Conflicting(path.MatchRoot("provider_id"), path.MatchRoot("storefront_slug"), path.MatchRoot("provider_name"))}
 }
 
 // findOffers returns the offers matching q, sorted, and how many matched the
@@ -222,6 +229,13 @@ func findOffers(ctx context.Context, c *client.Client, q offerQuery, diags *diag
 			all = append(all, o)
 		}
 	}
+	if name := configuredProviderName(q); name != "" {
+		named, err := filterByProviderName(all, name)
+		if err != nil {
+			return nil, 0, err
+		}
+		all = named
+	}
 	located := len(all)
 	caps := []string{}
 	if !q.RequireCapabilities.IsNull() && !q.RequireCapabilities.IsUnknown() {
@@ -252,6 +266,33 @@ func findOffers(ctx context.Context, c *client.Client, q offerQuery, diags *diag
 		return a.planID < b.planID
 	})
 	return out, located, nil
+}
+
+// configuredProviderName is the trimmed provider_name filter, or "" for none.
+func configuredProviderName(q offerQuery) string {
+	if q.ProviderName.IsNull() || q.ProviderName.IsUnknown() {
+		return ""
+	}
+	return strings.TrimSpace(q.ProviderName.ValueString())
+}
+
+// filterByProviderName keeps the offers from the provider called name,
+// ignoring case and surrounding spaces. It fails when offers from more than
+// one provider have that name, rather than picking one of them.
+func filterByProviderName(offers []offer, name string) ([]offer, error) {
+	want := strings.ToLower(strings.TrimSpace(name))
+	var out []offer
+	ids := map[string]bool{}
+	for _, o := range offers {
+		if strings.ToLower(strings.TrimSpace(o.providerName)) == want {
+			out = append(out, o)
+			ids[o.providerID] = true
+		}
+	}
+	if len(ids) > 1 {
+		return nil, fmt.Errorf("more than one provider is named %s; give its provider_id or storefront_slug instead", strings.TrimSpace(name))
+	}
+	return out, nil
 }
 
 // citiesSelling lists "City (Country)" for every place the plan code is sold,
@@ -291,6 +332,9 @@ func citiesSelling(ctx context.Context, c *client.Client, code, asset string) []
 func noOfferError(ctx context.Context, c *client.Client, q offerQuery, located int) string {
 	code := q.PlanCode.ValueString()
 	msg := fmt.Sprintf("No offer for plan code %s in %s, %s", code, q.City.ValueString(), q.Country.ValueString())
+	if name := configuredProviderName(q); name != "" {
+		msg += " from provider " + name
+	}
 	if b := q.BillingType.ValueString(); b != "" {
 		msg += " with billing type " + b
 	}
@@ -321,7 +365,6 @@ type offerModel struct {
 	offerQuery
 	PlanID         types.String  `tfsdk:"plan_id"`
 	RegionID       types.String  `tfsdk:"region_id"`
-	ProviderName   types.String  `tfsdk:"provider_name"`
 	PlatformDriver types.String  `tfsdk:"platform_driver"`
 	Capabilities   types.List    `tfsdk:"capabilities"`
 	IPv6Available  types.Bool    `tfsdk:"ipv6_available"`
@@ -340,7 +383,6 @@ func (d *offerDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 	attrs := queryAttrs(true)
 	attrs["plan_id"] = schema.StringAttribute{Computed: true, MarkdownDescription: "Plan ID to use as `plan_id` of a VM or game server."}
 	attrs["region_id"] = schema.StringAttribute{Computed: true, MarkdownDescription: "Region ID to use as `region_id`."}
-	attrs["provider_name"] = schema.StringAttribute{Computed: true, MarkdownDescription: "Name of the provider."}
 	attrs["platform_driver"] = schema.StringAttribute{Computed: true, MarkdownDescription: "Platform, for example `proxmox`, `virtfusion` or `solusvm`."}
 	attrs["capabilities"] = schema.ListAttribute{Computed: true, ElementType: types.StringType,
 		MarkdownDescription: "Features the platform supports, for example `guest_firewall` (firewall), `on_demand_backup` (backups), `snapshots` and `instant_apps`."}
@@ -391,7 +433,10 @@ func (d *offerDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	m.PlanID = types.StringValue(plan.PlanID)
 	m.RegionID = types.StringValue(o.regionID)
 	m.ProviderID = types.StringValue(o.providerID)
-	m.ProviderName = types.StringValue(o.providerName)
+	if m.ProviderName.IsNull() {
+		// Keep a configured name as written; it matched without regard to case.
+		m.ProviderName = types.StringValue(o.providerName)
+	}
 	m.BillingType = types.StringValue(lower(plan.BillingType, "BILLING_TYPE_"))
 	m.PlatformDriver = types.StringValue(lower(o.driver, "PLATFORM_DRIVER_"))
 	m.Capabilities = strList(ctx, o.caps, &resp.Diagnostics)

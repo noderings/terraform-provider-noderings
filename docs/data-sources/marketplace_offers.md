@@ -38,11 +38,12 @@ output "offers" {
 
 - `asset_type` (String) `virtual_machine` (default) or `game_server`. Only checked when the provider is known (`provider_id` or `storefront_slug`).
 - `billing_type` (String) `usage` (billed hourly from credit), `subscription` (billed monthly in advance) or `free`. Strongly recommended: without it each provider offers one arbitrary plan for the code.
-- `provider_id` (String) Only offers from this provider. Conflicts with `storefront_slug`.
+- `provider_id` (String) Only offers from this provider. Conflicts with `storefront_slug` and `provider_name`.
+- `provider_name` (String) Only offers from the provider with this name, for example `Acme Hosting` (case-insensitive, surrounding spaces ignored). Fails if more than one provider has the name; give `provider_id` or `storefront_slug` then. Conflicts with `provider_id` and `storefront_slug`.
 - `require_capabilities` (Set of String) Only providers whose platform supports all of these, for example `guest_firewall`, `on_demand_backup`, `snapshots` or `instant_apps`.
 - `require_ipv6` (Boolean) Only offers with IPv6 in the city.
 - `sort` (String) `price` (cheapest first, the default) or `rating` (best rated first).
-- `storefront_slug` (String) Only offers from the provider with this public storefront, for example `acme-hosting`.
+- `storefront_slug` (String) Only offers from the provider with this public storefront, for example `acme-hosting`. Conflicts with `provider_id` and `provider_name`.
 
 ### Read-Only
 
