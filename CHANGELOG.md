@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/noderings/terraform-provider-noderings/compare/v0.2.0...v0.2.1) (2026-11-27)
+
+
+### DOCUMENTATION
+
+* link the official Go SDK in the README ([#14](https://github.com/noderings/terraform-provider-noderings/issues/14)) ([63baf7f](https://github.com/noderings/terraform-provider-noderings/commit/63baf7fc19f6fa35fda66cc709a974bc572caa16))
+
 ## [0.2.0](https://github.com/noderings/terraform-provider-noderings/compare/v0.1.2...v0.2.0) (2026-11-26)
 
 
