@@ -495,6 +495,10 @@ examples/, templates/ inputs for the generated docs/
 
 Releases are automated with [release-please](https://github.com/googleapis/release-please) and GoReleaser: merging the release pull request tags `vX.Y.Z`, and `.github/workflows/release.yml` builds, signs and publishes the release that the Terraform Registry and the OpenTofu Registry read. Every release zip has a GitHub build provenance attestation (`gh attestation verify <zip> -R noderings/terraform-provider-noderings`). See [CONTRIBUTING.md](CONTRIBUTING.md#releasing) for the details.
 
+## Related
+
+The [Go SDK](https://github.com/noderings/noderings-go) is the official Go client for the NodeRings API.
+
 ## License
 
 [MPL-2.0](LICENSE)
